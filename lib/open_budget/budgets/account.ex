@@ -14,11 +14,13 @@ defmodule OpenBudget.Budgets.Account do
   use Ecto.Schema
   import Ecto.Changeset
   alias OpenBudget.Budgets.Account
+  alias OpenBudget.Budgets.Budget
 
   schema "accounts" do
     field :description, :string
     field :name, :string
     field :category, :string
+    belongs_to :budget, Budget
 
     timestamps()
   end
