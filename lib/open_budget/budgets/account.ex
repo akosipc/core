@@ -31,4 +31,11 @@ defmodule OpenBudget.Budgets.Account do
     |> cast(attrs, [:name, :description, :category])
     |> validate_required([:name, :description, :category])
   end
+
+  @doc false
+  def budget_association_changeset(%Account{} = account, attrs) do
+    account
+    |> cast(attrs, [:budget_id])
+    |> validate_required([:budget_id])
+  end
 end

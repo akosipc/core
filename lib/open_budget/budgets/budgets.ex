@@ -7,6 +7,7 @@ defmodule OpenBudget.Budgets do
   alias OpenBudget.Repo
 
   alias OpenBudget.Budgets.Account
+  alias OpenBudget.Budgets.Budget
   alias OpenBudget.Budgets.BudgetUser
   alias OpenBudget.Authentication.User
 
@@ -104,7 +105,29 @@ defmodule OpenBudget.Budgets do
     Account.changeset(account, %{})
   end
 
-  alias OpenBudget.Budgets.Budget
+  @doc """
+  Adds an association between a Budget and an Account.
+
+  ## Examples
+      iex> associate_account_to_budget(account, budget)
+      {:ok, %Budget{}, %Account{}}
+
+      iex> associate_account_to_budget(account, %Budget{})
+      {:error, %Ecto.Changeset{}}
+  """
+  def associate_account_to_budget(%Account{} = account, %Budget{} = budget) do
+    changeset =
+      account
+      |> Account.budget_association_changeset(%{budget_id: budget.id})
+      |> Repo.update()
+
+    case changeset do
+      {:ok, account} ->
+        account = Repo.preload(account, :budget)
+        {:ok, account}
+      {:error, changeset} -> {:error, changeset}
+    end
+  end
 
   @doc """
   Returns the list of budgets.

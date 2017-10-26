@@ -88,6 +88,22 @@ defmodule OpenBudget.BudgetsTest do
       account = account_fixture()
       assert %Ecto.Changeset{} = Budgets.change_account(account)
     end
+
+    test "associate_account_to_budget/2 associates an account with a budget" do
+      account = account_fixture()
+      budget = budget_fixture()
+      {:ok, account} = Budgets.associate_account_to_budget(account, budget)
+
+      assert account.budget == budget
+    end
+
+    test "associate_account_to_budget/2 returns an error when an account is associated with blank budget" do
+      account = account_fixture()
+      {result, changeset} = Budgets.associate_account_to_budget(account, %Budget{})
+
+      assert result == :error
+      assert changeset.errors == [budget_id: {"can't be blank", [validation: :required]}]
+    end
   end
 
   describe "budgets" do
