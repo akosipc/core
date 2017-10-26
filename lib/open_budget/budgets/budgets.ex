@@ -25,6 +25,21 @@ defmodule OpenBudget.Budgets do
   end
 
   @doc """
+  Returns a list of accounts associated with the given budget.
+
+  ## Examples
+
+      iex> list_accounts(budget)
+      [%Account{}, ...]
+  """
+  def list_accounts(budget) do
+    Repo.all(from a in Account,
+            preload: [:budget],
+            left_join: b in Budget, on: b.id == a.budget_id,
+            where: b.id == ^budget.id)
+  end
+
+  @doc """
   Gets a single account.
 
   Raises `Ecto.NoResultsError` if the Account does not exist.

@@ -47,6 +47,14 @@ defmodule OpenBudget.BudgetsTest do
       assert Budgets.list_accounts() == [account]
     end
 
+    test "list_accounts/1 returns all accounts associated with the given budget" do
+      account = account_fixture()
+      account_fixture(%{name: "Other account"})
+      budget = budget_fixture()
+      {:ok, account} = Budgets.associate_account_to_budget(account, budget)
+      assert Budgets.list_accounts(budget) == [account]
+    end
+
     test "get_account!/1 returns the account with given id" do
       account = account_fixture()
       assert Budgets.get_account!(account.id) == account
