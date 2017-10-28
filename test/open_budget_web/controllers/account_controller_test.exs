@@ -228,9 +228,29 @@ defmodule OpenBudgetWeb.AccountControllerTest do
   describe "delete account" do
     setup [:create_account]
 
-    test "deletes chosen account", %{conn: conn, account: account} do
+    test "deletes chosen account when associated with active budget", %{conn: conn, account: account} do
+      user = Repo.get_by(User, email: "test@example.com")
+      budget = budget_fixture()
+      Budgets.associate_user_to_budget(budget, user)
+      Budgets.switch_active_budget(budget, user)
+      Budgets.associate_account_to_budget(account, budget)
+
       conn = delete conn, account_path(conn, :delete, account)
       assert response(conn, 204)
+    end
+
+    test "renders error when account is not associated with active budget", %{conn: conn, account: account} do
+      user = Repo.get_by(User, email: "test@example.com")
+      budget = budget_fixture()
+      Budgets.associate_user_to_budget(budget, user)
+      Budgets.switch_active_budget(budget, user)
+
+      conn = delete conn, account_path(conn, :delete, account)
+      assert json_response(conn, 404)["errors"] == [%{
+        "title" => "Resource not found",
+        "status" => 404,
+        "detail" => "This resource cannot be found"
+      }]
     end
   end
 

@@ -2,7 +2,6 @@ defmodule OpenBudgetWeb.AccountController do
   use OpenBudgetWeb, :controller
 
   alias OpenBudget.Budgets
-  alias OpenBudget.Budgets.Account
   alias JaSerializer.Params
   alias Guardian.Plug
   alias OpenBudget.Repo
@@ -68,9 +67,17 @@ defmodule OpenBudgetWeb.AccountController do
   end
 
   def delete(conn, %{"id" => id}) do
-    {:ok, account} = Budgets.get_account(id)
-    with {:ok, %Account{}} <- Budgets.delete_account(account) do
-      send_resp(conn, :no_content, "")
+    current_user = Plug.current_resource(conn)
+    current_user = Repo.preload(current_user, [:active_budget])
+    case Budgets.get_account(id, current_user.active_budget) do
+      {:ok, account} ->
+        case Budgets.delete_account(account) do
+          {:ok, _} -> send_resp(conn, :no_content, "")
+        end
+      {:error, _} ->
+        conn
+        |> put_status(404)
+        |> render(OpenBudgetWeb.ErrorView, "404.json-api")
     end
   end
 end
