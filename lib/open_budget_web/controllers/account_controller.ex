@@ -17,13 +17,20 @@ defmodule OpenBudgetWeb.AccountController do
   end
 
   def create(conn, %{"data" => data}) do
+    current_user = Plug.current_resource(conn)
+    current_user = Repo.preload(current_user, [:active_budget])
     attrs = Params.to_attributes(data)
-    with {:ok, %Account{} = account} <-
-      Budgets.create_account(attrs) do
-      conn
-      |> put_status(:created)
-      |> put_resp_header("location", account_path(conn, :show, account))
-      |> render("show.json-api", data: account)
+
+    case Budgets.create_account(attrs, current_user.active_budget) do
+      {:ok, account} ->
+        conn
+        |> put_status(201)
+        |> put_resp_header("location", account_path(conn, :show, account))
+        |> render("show.json-api", data: account, opts: [include: "budget"])
+      {:error, changeset} ->
+        conn
+        |> put_status(422)
+        |> render(OpenBudgetWeb.ErrorView, "422.json-api", changeset: changeset)
     end
   end
 

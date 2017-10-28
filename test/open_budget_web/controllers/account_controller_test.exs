@@ -124,6 +124,11 @@ defmodule OpenBudgetWeb.AccountControllerTest do
 
   describe "create account" do
     test "renders account when data is valid", %{conn: conn} do
+      user = Repo.get_by(User, %{email: "test@example.com"})
+      budget = budget_fixture()
+      Budgets.associate_user_to_budget(budget, user)
+      Budgets.switch_active_budget(budget, user)
+
       params = Poison.encode!(%{data: %{attributes: @create_account_attrs}})
       conn = post conn, account_path(conn, :create), params
       response = json_response(conn, 201)["data"]
@@ -132,6 +137,15 @@ defmodule OpenBudgetWeb.AccountControllerTest do
         "name" => "Sample Account",
         "description" => "This is an account",
         "category" => "Cash"
+      }
+
+      assert response["relationships"] == %{
+        "budget" => %{
+          "data" => %{
+            "id" => "#{budget.id}",
+            "type" => "budget"
+          }
+        }
       }
     end
 
