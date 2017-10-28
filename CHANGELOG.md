@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Add Contributing Guidelines.
 - Add Budget resource (schema/endpoint).
 - Add active budgets and allow users to switch between budgets.
+- Automatically create a default active budget and authenticate for users created through `POST /users`.
 
 ### Changed
 
