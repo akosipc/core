@@ -223,6 +223,22 @@ defmodule OpenBudgetWeb.AccountControllerTest do
       conn = put conn, account_path(conn, :update, account), params
       assert json_response(conn, 422)["errors"] != %{}
     end
+
+    test "renders error when account id is not associated with a budget", %{conn: conn, account: account} do
+      user = Repo.get_by(User, email: "test@example.com")
+      budget = budget_fixture()
+      Budgets.associate_user_to_budget(budget, user)
+      Budgets.switch_active_budget(budget, user)
+
+      params = Poison.encode!(%{data: %{attributes: @update_account_attrs}})
+      conn = put conn, account_path(conn, :update, account), params
+
+      assert json_response(conn, 404)["errors"] == [%{
+        "title" => "Resource not found",
+        "status" => 404,
+        "detail" => "This resource cannot be found"
+      }]
+    end
   end
 
   describe "delete account" do
