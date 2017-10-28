@@ -35,8 +35,15 @@ defmodule OpenBudgetWeb.AccountController do
   end
 
   def show(conn, %{"id" => id}) do
-    {:ok, account} = Budgets.get_account(id)
-    render(conn, "show.json-api", data: account)
+    current_user = Plug.current_resource(conn)
+    current_user = Repo.preload(current_user, [:active_budget])
+    case Budgets.get_account(id, current_user.active_budget) do
+      {:ok, account} -> render(conn, "show.json-api", data: account)
+      {:error, _} ->
+        conn
+        |> put_status(404)
+        |> render(OpenBudgetWeb.ErrorView, "404.json-api")
+    end
   end
 
   def update(conn, %{"id" => id, "data" => data}) do

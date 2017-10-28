@@ -100,8 +100,14 @@ defmodule OpenBudgetWeb.AccountControllerTest do
   end
 
   describe "show" do
-    test "renders budget", %{conn: conn} do
+    test "renders account associated with active budget", %{conn: conn} do
+      user = Repo.get_by(User, %{email: "test@example.com"})
+      budget = budget_fixture()
+      Budgets.associate_user_to_budget(budget, user)
+      Budgets.switch_active_budget(budget, user)
+
       account = account_fixture()
+      Budgets.associate_account_to_budget(account, budget)
       conn = get conn, account_path(conn, :show, account.id)
 
       assert json_response(conn, 200)["data"] == %{
@@ -119,6 +125,22 @@ defmodule OpenBudgetWeb.AccountControllerTest do
           "budget" => %{}
         }
       }
+    end
+
+    test "renders error when account is not associated with active budget", %{conn: conn} do
+      user = Repo.get_by(User, %{email: "test@example.com"})
+      budget = budget_fixture()
+      Budgets.associate_user_to_budget(budget, user)
+      Budgets.switch_active_budget(budget, user)
+
+      account = account_fixture()
+      conn = get conn, account_path(conn, :show, account.id)
+
+      assert json_response(conn, 404)["errors"] == [%{
+        "title" => "Resource not found",
+        "status" => 404,
+        "detail" => "This resource cannot be found"
+      }]
     end
   end
 
