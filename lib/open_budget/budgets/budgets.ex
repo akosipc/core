@@ -153,7 +153,7 @@ defmodule OpenBudget.Budgets do
 
   ## Examples
       iex> associate_account_to_budget(account, budget)
-      {:ok, %Budget{}, %Account{}}
+      {:ok, %Account{}}
 
       iex> associate_account_to_budget(account, %Budget{})
       {:error, %Ecto.Changeset{}}
