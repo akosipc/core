@@ -55,9 +55,13 @@ defmodule OpenBudget.BudgetsTest do
       assert Budgets.list_accounts(budget) == [account]
     end
 
-    test "get_account!/1 returns the account with given id" do
+    test "get_account/1 returns the account with given id" do
       account = account_fixture()
-      assert Budgets.get_account!(account.id) == account
+      assert Budgets.get_account(account.id) == {:ok, account}
+    end
+
+    test "get_account/1 with invalid id returns error" do
+      assert Budgets.get_account(1) == {:error, "Account not found"}
     end
 
     test "create_account/1 with valid data creates a account" do
@@ -98,13 +102,12 @@ defmodule OpenBudget.BudgetsTest do
     test "update_account/2 with invalid data returns error changeset" do
       account = account_fixture()
       assert {:error, %Ecto.Changeset{}} = Budgets.update_account(account, @invalid_account_attrs)
-      assert account == Budgets.get_account!(account.id)
+      assert {:ok, account} == Budgets.get_account(account.id)
     end
 
     test "delete_account/1 deletes the account" do
       account = account_fixture()
       assert {:ok, %Account{}} = Budgets.delete_account(account)
-      assert_raise Ecto.NoResultsError, fn -> Budgets.get_account!(account.id) end
     end
 
     test "change_account/1 returns a account changeset" do

@@ -35,13 +35,13 @@ defmodule OpenBudgetWeb.AccountController do
   end
 
   def show(conn, %{"id" => id}) do
-    account = Budgets.get_account!(id)
+    {:ok, account} = Budgets.get_account(id)
     render(conn, "show.json-api", data: account)
   end
 
   def update(conn, %{"id" => id, "data" => data}) do
     attrs = Params.to_attributes(data)
-    account = Budgets.get_account!(id)
+    {:ok, account} = Budgets.get_account(id)
 
     with {:ok, %Account{} = account} <-
       Budgets.update_account(account, attrs) do
@@ -50,7 +50,7 @@ defmodule OpenBudgetWeb.AccountController do
   end
 
   def delete(conn, %{"id" => id}) do
-    account = Budgets.get_account!(id)
+    {:ok, account} = Budgets.get_account(id)
     with {:ok, %Account{}} <- Budgets.delete_account(account) do
       send_resp(conn, :no_content, "")
     end

@@ -42,18 +42,21 @@ defmodule OpenBudget.Budgets do
   @doc """
   Gets a single account.
 
-  Raises `Ecto.NoResultsError` if the Account does not exist.
-
   ## Examples
 
-      iex> get_account!(123)
+      iex> get_account(123)
       %Account{}
 
-      iex> get_account!(456)
+      iex> get_account(456)
       ** (Ecto.NoResultsError)
 
   """
-  def get_account!(id), do: Repo.get!(Account, id)
+  def get_account(id) do
+    budget = Repo.get!(Account, id)
+    {:ok, budget}
+  rescue
+    Ecto.NoResultsError -> {:error, "Account not found"}
+  end
 
   @doc """
   Creates a account.
