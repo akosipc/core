@@ -72,6 +72,9 @@ defmodule OpenBudgetWeb.AccountControllerTest do
             "name" => "Sample Account",
             "description" => "This is an account",
             "category" => "Cash"
+          },
+          "links" => %{
+            "self" => "/accounts/#{account.id}"
           }
         },
         %{
@@ -81,6 +84,9 @@ defmodule OpenBudgetWeb.AccountControllerTest do
             "name" => "Other Account",
             "description" => "This is an account",
             "category" => "Cash"
+          },
+          "links" => %{
+            "self" => "/accounts/#{other_account.id}"
           }
         }
       ]
@@ -99,6 +105,9 @@ defmodule OpenBudgetWeb.AccountControllerTest do
           "name" => "Sample Account",
           "description" => "This is an account",
           "category" => "Cash"
+        },
+        "links" => %{
+          "self" => "/accounts/#{account.id}"
         }
       }
     end
@@ -137,6 +146,9 @@ defmodule OpenBudgetWeb.AccountControllerTest do
           "name" => "Updated Sample Account",
           "description" => "This is an updated account",
           "category" => "Cash"
+        },
+        "links" => %{
+          "self" => "/accounts/#{id}"
         }
       }
     end
