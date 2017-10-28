@@ -2,18 +2,22 @@ defmodule OpenBudgetWeb.AccountControllerTest do
   use OpenBudgetWeb.ConnCase
 
   alias OpenBudget.Authentication
+  alias OpenBudget.Authentication.User
   alias OpenBudget.Budgets
   alias OpenBudget.Budgets.Account
   alias OpenBudget.Guardian.Authentication, as: GuardianAuth
+  alias OpenBudget.Repo
 
-  @create_attrs %{name: "Sample Account", description: "This is an account", category: "Cash"}
-  @update_attrs %{name: "Updated Sample Account", description: "This is an updated account", category: "Cash"}
-  @invalid_attrs %{name: nil, description: nil, category: nil}
+  @create_account_attrs %{name: "Sample Account", description: "This is an account", category: "Cash"}
+  @update_account_attrs %{name: "Updated Sample Account", description: "This is an updated account", category: "Cash"}
+  @invalid_account_attrs %{name: nil, description: nil, category: nil}
+
+  @create_budget_attrs %{name: "Sample Budget", description: "This is a sample budget"}
 
   def account_fixture(attrs \\ %{}) do
     {:ok, account} =
       attrs
-      |> Enum.into(@create_attrs)
+      |> Enum.into(@create_account_attrs)
       |> Budgets.create_account()
     account
   end
@@ -24,6 +28,14 @@ defmodule OpenBudgetWeb.AccountControllerTest do
       |> Enum.into(%{email: "test@example.com", password: "password"})
       |> Authentication.create_user()
     user
+  end
+
+  def budget_fixture(attrs \\ %{}) do
+    {:ok, budget} =
+      attrs
+      |> Enum.into(@create_budget_attrs)
+      |> Budgets.create_budget()
+    budget
   end
 
   setup %{conn: conn} do
@@ -39,9 +51,39 @@ defmodule OpenBudgetWeb.AccountControllerTest do
   end
 
   describe "index" do
-    test "lists all accounts", %{conn: conn} do
+    test "lists all accounts associated with a user's active budget", %{conn: conn} do
+      user = Repo.get_by(User, %{email: "test@example.com"})
+      budget = budget_fixture()
+      account = account_fixture()
+      other_account = account_fixture(%{name: "Other Account"})
+      account_fixture(%{name: "Unassociated Account"})
+
+      Budgets.associate_account_to_budget(account, budget)
+      Budgets.associate_account_to_budget(other_account, budget)
+      Budgets.associate_user_to_budget(budget, user)
+      Budgets.switch_active_budget(budget, user)
       conn = get conn, account_path(conn, :index)
-      assert json_response(conn, 200)["data"] == []
+
+      assert json_response(conn, 200)["data"] == [
+        %{
+          "type" => "account",
+          "id" => "#{account.id}",
+          "attributes" => %{
+            "name" => "Sample Account",
+            "description" => "This is an account",
+            "category" => "Cash"
+          }
+        },
+        %{
+          "type" => "account",
+          "id" => "#{other_account.id}",
+          "attributes" => %{
+            "name" => "Other Account",
+            "description" => "This is an account",
+            "category" => "Cash"
+          }
+        }
+      ]
     end
   end
 
@@ -64,7 +106,7 @@ defmodule OpenBudgetWeb.AccountControllerTest do
 
   describe "create account" do
     test "renders account when data is valid", %{conn: conn} do
-      params = Poison.encode!(%{data: %{attributes: @create_attrs}})
+      params = Poison.encode!(%{data: %{attributes: @create_account_attrs}})
       conn = post conn, account_path(conn, :create), params
       response = json_response(conn, 201)["data"]
 
@@ -76,7 +118,7 @@ defmodule OpenBudgetWeb.AccountControllerTest do
     end
 
     test "renders errors when data is invalid", %{conn: conn} do
-      params = %{data: %{attributes: @invalid_attrs}}
+      params = %{data: %{attributes: @invalid_account_attrs}}
       conn = post conn, account_path(conn, :create), params
       assert json_response(conn, 422)["errors"] != %{}
     end
@@ -86,7 +128,7 @@ defmodule OpenBudgetWeb.AccountControllerTest do
     setup [:create_account]
 
     test "renders account when data is valid", %{conn: conn, account: %Account{id: id} = account} do
-      params = Poison.encode!(%{data: %{attributes: @update_attrs}})
+      params = Poison.encode!(%{data: %{attributes: @update_account_attrs}})
       conn = put conn, account_path(conn, :update, account), params
       assert json_response(conn, 200)["data"] == %{
         "id" => "#{id}",
@@ -100,7 +142,7 @@ defmodule OpenBudgetWeb.AccountControllerTest do
     end
 
     test "renders errors when data is invalid", %{conn: conn, account: account} do
-      params = %{data: %{attributes: @invalid_attrs}}
+      params = %{data: %{attributes: @invalid_account_attrs}}
       conn = put conn, account_path(conn, :update, account), params
       assert json_response(conn, 422)["errors"] != %{}
     end

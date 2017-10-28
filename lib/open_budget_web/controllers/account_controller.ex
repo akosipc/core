@@ -4,11 +4,15 @@ defmodule OpenBudgetWeb.AccountController do
   alias OpenBudget.Budgets
   alias OpenBudget.Budgets.Account
   alias JaSerializer.Params
+  alias Guardian.Plug
+  alias OpenBudget.Repo
 
   action_fallback OpenBudgetWeb.FallbackController
 
   def index(conn, _params) do
-    accounts = Budgets.list_accounts()
+    current_user = Plug.current_resource(conn)
+    current_user = Repo.preload(current_user, [:active_budget])
+    accounts = Budgets.list_accounts(current_user.active_budget)
     render(conn, "index.json-api", data: accounts)
   end
 
