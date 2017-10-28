@@ -71,6 +71,21 @@ defmodule OpenBudget.BudgetsTest do
       assert {:error, %Ecto.Changeset{}} = Budgets.create_account(@invalid_account_attrs)
     end
 
+    test "create_account/2 with valid data creates a account and associates with the budget" do
+      budget = budget_fixture()
+
+      assert {:ok, %Account{} = account} = Budgets.create_account(@create_account_attrs, budget)
+      assert account.name == "Sample Account"
+      assert account.description == "This is a sample account"
+      assert account.category == "Cash"
+      assert account.budget == budget
+    end
+
+    test "create_account/2 with invalid data returns error changeset" do
+      budget = budget_fixture()
+      assert {:error, %Ecto.Changeset{}} = Budgets.create_account(@invalid_account_attrs, budget)
+    end
+
     test "update_account/2 with valid data updates the account" do
       account = account_fixture()
       assert {:ok, account} = Budgets.update_account(account, @update_account_attrs)

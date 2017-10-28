@@ -74,6 +74,34 @@ defmodule OpenBudget.Budgets do
   end
 
   @doc """
+  Creates a account and associated it with the given budget.
+
+  ## Examples
+
+      iex> create_account(%{field: value}, budget)
+      {:ok, %Account{}}
+
+      iex> create_account(%{field: bad_value}, budget)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_account(attrs, budget) do
+    changeset =
+      %Account{}
+      |> Account.changeset(attrs)
+      |> Repo.insert()
+
+    case changeset do
+      {:ok, account} ->
+        {:ok, account} = associate_account_to_budget(account, budget)
+        account = Repo.preload(account, :budget)
+        {:ok, account}
+      {:error, changeset} ->
+        {:error, changeset}
+    end
+  end
+
+  @doc """
   Updates a account.
 
   ## Examples
