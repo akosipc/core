@@ -64,6 +64,25 @@ defmodule OpenBudget.BudgetsTest do
       assert Budgets.get_account(1) == {:error, "Account not found"}
     end
 
+    test "get_account!/2 returns the budget-associated account with given id" do
+      account = account_fixture()
+      budget = budget_fixture()
+      Budgets.associate_account_to_budget(account, budget)
+      {status, result} = Budgets.get_account(account.id, budget)
+
+      assert status == :ok
+      assert result.id == account.id
+    end
+
+    test "get_account!/2 with no budget-account association returns error" do
+      account = account_fixture()
+      budget = budget_fixture()
+      {status, message} = Budgets.get_account(account.id, budget)
+
+      assert status == :error
+      assert message == "Account not found"
+    end
+
     test "create_account/1 with valid data creates a account" do
       assert {:ok, %Account{} = account} = Budgets.create_account(@create_account_attrs)
       assert account.name == "Sample Account"

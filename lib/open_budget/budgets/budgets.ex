@@ -59,6 +59,28 @@ defmodule OpenBudget.Budgets do
   end
 
   @doc """
+  Gets a single account associated with the given budget.
+
+  ## Examples
+
+      iex> get_account(123, budget)
+      {:ok, %Account{}}
+
+      iex> get_account(456, budget)
+      {:error, "Account not found"}
+
+  """
+  def get_account(id, budget) do
+    account = Repo.one!(from a in Account,
+                        preload: [:budget],
+                        left_join: b in Budget, on: b.id == a.budget_id,
+                        where: b.id == ^budget.id and a.id == ^id)
+    {:ok, account}
+  rescue
+    Ecto.NoResultsError -> {:error, "Account not found"}
+  end
+
+  @doc """
   Creates a account.
 
   ## Examples
