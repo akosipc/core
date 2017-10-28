@@ -47,12 +47,23 @@ defmodule OpenBudgetWeb.AccountController do
   end
 
   def update(conn, %{"id" => id, "data" => data}) do
-    attrs = Params.to_attributes(data)
-    {:ok, account} = Budgets.get_account(id)
+    current_user = Plug.current_resource(conn)
+    current_user = Repo.preload(current_user, [:active_budget])
+    case Budgets.get_account(id, current_user.active_budget) do
+      {:ok, account} ->
+        attrs = Params.to_attributes(data)
 
-    with {:ok, %Account{} = account} <-
-      Budgets.update_account(account, attrs) do
-      render(conn, "show.json-api", data: account)
+        case Budgets.update_account(account, attrs) do
+          {:ok, account} -> render(conn, "show.json-api", data: account, opts: [include: "budget"])
+          {:error, changeset} ->
+            conn
+            |> put_status(422)
+            |> render(OpenBudgetWeb.ErrorView, "422.json-api", changeset: changeset)
+        end
+      {:error, _} ->
+        conn
+        |> put_status(404)
+        |> render(OpenBudgetWeb.ErrorView, "404.json-api")
     end
   end
 
