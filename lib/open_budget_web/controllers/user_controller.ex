@@ -1,8 +1,11 @@
 defmodule OpenBudgetWeb.UserController do
   use OpenBudgetWeb, :controller
 
+  alias Guardian.Plug
   alias OpenBudget.Authentication
   alias OpenBudget.Authentication.User
+  alias OpenBudget.Budgets
+  alias OpenBudget.Guardian.Authentication, as: GuardianAuth
   alias JaSerializer.Params
 
   action_fallback OpenBudgetWeb.FallbackController
@@ -14,11 +17,26 @@ defmodule OpenBudgetWeb.UserController do
 
   def create(conn, %{"data" => data}) do
     attrs = Params.to_attributes(data)
-    with {:ok, %User{} = user} <-
-        Authentication.create_user(attrs) do
-      conn
-      |> put_status(:created)
-      |> render("show.json-api", data: user)
+
+    case Authentication.create_user(attrs) do
+      {:ok, user} ->
+        budget_attrs = %{name: "Default Budget", description: "This is your budget"}
+        {:ok, budget} = Budgets.create_budget(budget_attrs)
+        Budgets.associate_user_to_budget(budget, user)
+        {:ok, _, user} = Budgets.switch_active_budget(budget, user)
+
+        conn = GuardianAuth.sign_in(conn, user)
+        token = Plug.current_token(conn)
+
+        conn
+        |> put_status(201)
+        |> put_resp_header("location", user_path(conn, :show, user))
+        |> put_resp_header("authorization", "Bearer #{token}")
+        |> render("show.json-api", data: user, opts: [include: "active_budget"])
+      {:error, changeset} ->
+        conn
+        |> put_status(422)
+        |> render(OpenBudgetWeb.ErrorView, "422.json-api", changeset: changeset)
     end
   end
 

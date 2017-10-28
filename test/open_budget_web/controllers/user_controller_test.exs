@@ -51,6 +51,9 @@ defmodule OpenBudgetWeb.UserControllerTest do
         },
         "links" => %{
           "self" => "/users/#{user.id}"
+        },
+        "relationships" => %{
+          "active-budget" => %{}
         }
       }
     end
@@ -61,10 +64,13 @@ defmodule OpenBudgetWeb.UserControllerTest do
       params = Poison.encode!(%{data: %{attributes: @create_attrs}})
       conn = post conn, user_path(conn, :create), params
       response = json_response(conn, 201)["data"]
+      {auth_header, _} = hd(Enum.reverse(conn.resp_headers))
 
+      assert auth_header == "authorization"
       assert response["attributes"] == %{
         "email" => "test@example.com"
       }
+      assert response["relationships"]["active-budget"]["data"]["id"] != ""
     end
 
     test "renders errors when data is invalid", %{conn: conn} do
