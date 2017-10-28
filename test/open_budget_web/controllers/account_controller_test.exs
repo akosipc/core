@@ -75,6 +75,9 @@ defmodule OpenBudgetWeb.AccountControllerTest do
           },
           "links" => %{
             "self" => "/accounts/#{account.id}"
+          },
+          "relationships" => %{
+            "budget" => %{}
           }
         },
         %{
@@ -87,6 +90,9 @@ defmodule OpenBudgetWeb.AccountControllerTest do
           },
           "links" => %{
             "self" => "/accounts/#{other_account.id}"
+          },
+          "relationships" => %{
+            "budget" => %{}
           }
         }
       ]
@@ -108,6 +114,9 @@ defmodule OpenBudgetWeb.AccountControllerTest do
         },
         "links" => %{
           "self" => "/accounts/#{account.id}"
+        },
+        "relationships" => %{
+          "budget" => %{}
         }
       }
     end
@@ -149,6 +158,9 @@ defmodule OpenBudgetWeb.AccountControllerTest do
         },
         "links" => %{
           "self" => "/accounts/#{id}"
+        },
+        "relationships" => %{
+          "budget" => %{}
         }
       }
     end
