@@ -7,6 +7,7 @@ defmodule OpenBudget.Budgets do
   alias OpenBudget.Repo
 
   alias OpenBudget.Budgets.Account
+  alias OpenBudget.Budgets.Budget
   alias OpenBudget.Budgets.BudgetUser
   alias OpenBudget.Authentication.User
 
@@ -24,20 +25,60 @@ defmodule OpenBudget.Budgets do
   end
 
   @doc """
-  Gets a single account.
-
-  Raises `Ecto.NoResultsError` if the Account does not exist.
+  Returns a list of accounts associated with the given budget.
 
   ## Examples
 
-      iex> get_account!(123)
+      iex> list_accounts(budget)
+      [%Account{}, ...]
+  """
+  def list_accounts(budget) do
+    Repo.all(from a in Account,
+            preload: [:budget],
+            left_join: b in Budget, on: b.id == a.budget_id,
+            where: b.id == ^budget.id)
+  end
+
+  @doc """
+  Gets a single account.
+
+  ## Examples
+
+      iex> get_account(123)
       %Account{}
 
-      iex> get_account!(456)
+      iex> get_account(456)
       ** (Ecto.NoResultsError)
 
   """
-  def get_account!(id), do: Repo.get!(Account, id)
+  def get_account(id) do
+    budget = Repo.get!(Account, id)
+    {:ok, budget}
+  rescue
+    Ecto.NoResultsError -> {:error, "Account not found"}
+  end
+
+  @doc """
+  Gets a single account associated with the given budget.
+
+  ## Examples
+
+      iex> get_account(123, budget)
+      {:ok, %Account{}}
+
+      iex> get_account(456, budget)
+      {:error, "Account not found"}
+
+  """
+  def get_account(id, budget) do
+    account = Repo.one!(from a in Account,
+                        preload: [:budget],
+                        left_join: b in Budget, on: b.id == a.budget_id,
+                        where: b.id == ^budget.id and a.id == ^id)
+    {:ok, account}
+  rescue
+    Ecto.NoResultsError -> {:error, "Account not found"}
+  end
 
   @doc """
   Creates a account.
@@ -55,6 +96,34 @@ defmodule OpenBudget.Budgets do
     %Account{}
     |> Account.changeset(attrs)
     |> Repo.insert()
+  end
+
+  @doc """
+  Creates a account and associated it with the given budget.
+
+  ## Examples
+
+      iex> create_account(%{field: value}, budget)
+      {:ok, %Account{}}
+
+      iex> create_account(%{field: bad_value}, budget)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_account(attrs, budget) do
+    changeset =
+      %Account{}
+      |> Account.changeset(attrs)
+      |> Repo.insert()
+
+    case changeset do
+      {:ok, account} ->
+        {:ok, account} = associate_account_to_budget(account, budget)
+        account = Repo.preload(account, :budget)
+        {:ok, account}
+      {:error, changeset} ->
+        {:error, changeset}
+    end
   end
 
   @doc """
@@ -104,7 +173,29 @@ defmodule OpenBudget.Budgets do
     Account.changeset(account, %{})
   end
 
-  alias OpenBudget.Budgets.Budget
+  @doc """
+  Adds an association between a Budget and an Account.
+
+  ## Examples
+      iex> associate_account_to_budget(account, budget)
+      {:ok, %Account{}}
+
+      iex> associate_account_to_budget(account, %Budget{})
+      {:error, %Ecto.Changeset{}}
+  """
+  def associate_account_to_budget(%Account{} = account, %Budget{} = budget) do
+    changeset =
+      account
+      |> Account.budget_association_changeset(%{budget_id: budget.id})
+      |> Repo.update()
+
+    case changeset do
+      {:ok, account} ->
+        account = Repo.preload(account, :budget)
+        {:ok, account}
+      {:error, changeset} -> {:error, changeset}
+    end
+  end
 
   @doc """
   Returns the list of budgets.

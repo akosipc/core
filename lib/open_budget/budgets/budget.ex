@@ -4,6 +4,7 @@ defmodule OpenBudget.Budgets.Budget do
   """
   use Ecto.Schema
   import Ecto.Changeset
+  alias OpenBudget.Budgets.Account
   alias OpenBudget.Budgets.Budget
   alias OpenBudget.Budgets.BudgetUser
   alias OpenBudget.Authentication.User
@@ -15,6 +16,7 @@ defmodule OpenBudget.Budgets.Budget do
                        join_through: BudgetUser,
                        unique: true,
                        on_delete: :delete_all
+    has_many :accounts, Account, on_delete: :delete_all
 
     timestamps()
   end

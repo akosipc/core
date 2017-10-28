@@ -14,11 +14,13 @@ defmodule OpenBudget.Budgets.Account do
   use Ecto.Schema
   import Ecto.Changeset
   alias OpenBudget.Budgets.Account
+  alias OpenBudget.Budgets.Budget
 
   schema "accounts" do
     field :description, :string
     field :name, :string
     field :category, :string
+    belongs_to :budget, Budget
 
     timestamps()
   end
@@ -28,5 +30,12 @@ defmodule OpenBudget.Budgets.Account do
     account
     |> cast(attrs, [:name, :description, :category])
     |> validate_required([:name, :description, :category])
+  end
+
+  @doc false
+  def budget_association_changeset(%Account{} = account, attrs) do
+    account
+    |> cast(attrs, [:budget_id])
+    |> validate_required([:budget_id])
   end
 end
