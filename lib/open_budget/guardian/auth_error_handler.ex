@@ -8,5 +8,6 @@ defmodule OpenBudget.Guardian.AuthErrorHandler do
     conn
     |> put_status(401)
     |> render(OpenBudgetWeb.ErrorView, "401.json-api")
+    |> halt
   end
 end
