@@ -27,7 +27,7 @@ defmodule OpenBudgetWeb.Router do
       post "/switch", BudgetController, :switch, as: :switch
     end
     resources "/users", UserController, except: [:new, :edit, :create]
-    delete "/token", TokenController, :delete
+    delete "/auth/token", TokenController, :delete
   end
 
   scope "/api/auth", OpenBudgetWeb do
