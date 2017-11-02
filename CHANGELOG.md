@@ -8,7 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 
-- Fix Token deletion URL to be /auth/token instead of /token
+- Fix Token deletion URL to be /auth/token instead of /token.
+- Fix repeated controller render after Guardian returns 401.
 
 ## [0.2.0](https://github.com/obudget/core/releases/tag/v0.2.0) - 2017-10-28 - [Diff](https://github.com/obudget/core/compare/v0.1.0...v0.2.0)
 
