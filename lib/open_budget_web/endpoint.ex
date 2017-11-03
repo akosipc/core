@@ -36,7 +36,7 @@ defmodule OpenBudgetWeb.Endpoint do
     key: "_open_budget_key",
     signing_salt: "m/z5YUv0"
 
-  plug CORSPlug, origin: ["https://openbudget.xyz", "http://localhost:3000"]
+  plug CORSPlug, origin: ["https://app.openbudget.xyz", "http://localhost:3000"]
 
   plug OpenBudgetWeb.Router
 
