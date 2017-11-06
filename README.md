@@ -1,6 +1,6 @@
 # OpenBudget Core
 
-[![Build Status](https://travis-ci.org/obudget/core.svg?branch=master)](https://travis-ci.org/obudget/core) [![Coverage Status](https://coveralls.io/repos/github/obudget/core/badge.svg?branch=master)](https://coveralls.io/github/obudget/core?branch=master) [![Code Climate](https://codeclimate.com/github/obudget/core/badges/gpa.svg)](https://codeclimate.com/github/obudget/core) [![Inline docs](http://inch-ci.org/github/obudget/core.svg)](http://inch-ci.org/github/obudget/core) [![Gitter chat](https://badges.gitter.im/obudget.png)](https://gitter.im/obudget) [![Gratipay](https://img.shields.io/gratipay/project/OpenBudget.svg)](https://gratipay.com/OpenBudget/)
+[![Build Status](https://travis-ci.org/obudget/core.svg?branch=master)](https://travis-ci.org/obudget/core) [![Coverage Status](https://coveralls.io/repos/github/obudget/core/badge.svg?branch=master)](https://coveralls.io/github/obudget/core?branch=master) [![Code Climate](https://codeclimate.com/github/obudget/core/badges/gpa.svg)](https://codeclimate.com/github/obudget/core) [![Inline docs](http://inch-ci.org/github/obudget/core.svg)](http://inch-ci.org/github/obudget/core) [![Gitter chat](https://badges.gitter.im/obudget.png)](https://gitter.im/obudget) [![Patreon donate button](https://img.shields.io/badge/patreon-donate-yellow.svg)](https://patreon.com/terenceponce "Donate to this project using Patreon")
 
 [![Sponsor](https://app.codesponsor.io/embed/FtXSUnEDZhz4wUWaXdYz3wdD/obudget/core.svg)](https://app.codesponsor.io/link/FtXSUnEDZhz4wUWaXdYz3wdD/obudget/core)
 
