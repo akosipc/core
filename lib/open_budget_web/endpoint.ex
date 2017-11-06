@@ -38,7 +38,7 @@ defmodule OpenBudgetWeb.Endpoint do
 
   plug Corsica,
     max_age: 86_000,
-    origins: "http://localhost:3000",
+    origins: Application.get_env(:open_budget, OpenBudgetWeb.Endpoint)[:frontend_host],
     allow_headers: ~w(Authorization Content-Type Accept Origin),
     expose_headers: ~w(Authorization Content-Type)
 

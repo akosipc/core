@@ -18,7 +18,8 @@ config :open_budget, OpenBudgetWeb.Endpoint,
   load_from_system_env: true,
   server: true,
   version: Mix.Project.config[:version],
-  secret_key_base: "${SECRET_KEY_BASE}"
+  secret_key_base: "${SECRET_KEY_BASE}",
+  frontend_host: "https://app.openbudget.xyz"
 
 # Do not print debug messages in production
 config :logger, level: :info
