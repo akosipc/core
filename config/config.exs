@@ -15,7 +15,8 @@ config :open_budget, OpenBudgetWeb.Endpoint,
   secret_key_base: "aN2o/h57OsXeuJTFr6A2XwENBMTJazo2mtGAi84mMwvJc/or8VO4Ig60mW+xlgQb",
   render_errors: [view: OpenBudgetWeb.ErrorView, accepts: ~w(json json-api)],
   pubsub: [name: OpenBudget.PubSub,
-           adapter: Phoenix.PubSub.PG2]
+           adapter: Phoenix.PubSub.PG2],
+  frontend_host: "http://localhost:3000"
 
 # Configures Elixir's Logger
 config :logger, :console,
