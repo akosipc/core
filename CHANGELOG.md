@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 
 - Change CORS library from CORSPlug to Corsica. [#46](https://github.com/obudget/core/pull/46)
+- Change CORS origin URL depending on the application's environment. [#47](https://github.com/obudget/core/pull/47)
 
 ## [0.2.1](https://github.com/obudget/core/releases/tag/v0.2.1) - 2017-11-02 - [Diff](https://github.com/obudget/core/compare/v0.2.0...v0.2.1)
 
